@@ -1,5 +1,7 @@
 const axios = require('axios')
 const xml2json = require('xml2json')
+const path = require('path')
+const fs = require('fs')
 
 module.exports = {
     async getChart(req, res) {
@@ -13,18 +15,27 @@ module.exports = {
         url = url.concat('&area=cartas&IcaoCode=', icao, '&tipo=', tipo)
 
         await axios.get(url, {
-        })
-            .then(function (data) {
-                var result = data.data
-                
-                var responseJson = xml2json.toJson(result)                
-                var downloadLink = JSON.parse(responseJson).aisweb.cartas.item.link
-                res.send(downloadLink)
-            })
-            .catch(function (error) {
-                return res.json(JSON.parse(error))
+        }).then(async function (data) {
+            var result = data.data
+
+            var responseJson = xml2json.toJson(result)
+            var downloadLink = JSON.parse(responseJson).aisweb.cartas.item.link
+
+            //TODO: Verificar como será tratado para o front
+            const filePath = path.resolve(__dirname, '/Users/fabio/Documents/', tipo + ' - ' + icao + '.pdf')
+            const writer = fs.createWriteStream(filePath)
+
+            const response = await axios({
+                url: downloadLink,
+                method: 'GET',
+                responseType: 'stream'
             })
 
-        
+            response.data.pipe(writer)
+
+            return res.send({ "message": "file downloaded" })
+        })
+
+        return res.end()
     }
 }
