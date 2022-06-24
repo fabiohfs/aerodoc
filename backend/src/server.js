@@ -10,5 +10,5 @@ const server = http.Server(app)
 app.use(express.json())
 app.use(routes)
 
-console.log('Server running on port 3333')
-server.listen(3333)
+console.log('Server running on port 3334')
+server.listen(3334)

@@ -22,7 +22,11 @@ module.exports = {
             var downloadLink = JSON.parse(responseJson).aisweb.cartas.item.link;
 
             return res.send({ "fileLink": downloadLink });
-        })
+        }).catch(function (error) {
+            if (error.message != "") { 
+                console.log(error.message)
+            }
+        });
 
         return res.end()
     }
